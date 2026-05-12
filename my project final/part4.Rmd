@@ -1,0 +1,64 @@
+---
+title: "Part 4"
+output: html_document
+date: "2026-05-12"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# necessary packages
+library(dplyr)
+library(tidyverse)
+library(estimatr)
+library(Rcpp)
+library(stargazer)
+```
+Import your data into R. If you clean your data in python, you can import the csv. If you do some additional cleaning in R, be sure to show that in your R code that you hand in.
+
+Importing my data into R
+```{r}
+setwd("/Users/baileycarpenter/Documents/spring 2026/eco 590/final-project-baileycarpener")
+
+luxury <- read.csv("luxury.csv")
+summary(luxury)
+```
+*Run a regression with OLS. Ensure that you have more than 3 variables. (25 pts)*
+```{r}
+ols <- lm(Value ~ La.Mer + Caudalie + Lancome + Kiehls + SkinCeuticals, data = luxury)
+summary(ols)
+```
+*Run a regression with a filtered dataset (filter based on a category of your choosing within your dataset). (25 pts)*
+```{r}
+quarterly <- luxury[luxury$Period == 'Q04',]
+olsq <- lm(Value ~ La.Mer + Caudalie + Lancome + Kiehls + SkinCeuticals, data = quarterly)
+summary(olsq)
+```
+*Run your preferred regression using your dataset (different from regression 3). (25 pts)*
+```{r}
+skinols <- lm(Value ~ La.Prairie + La.Mer + Shiseido + Augustinus.Bader + Caudalie + SkinCeuticals + Sisley.Paris + Lancome + Kiehls + factor(Year) + factor(Period), data = luxury)
+
+cosols <- lm(Value ~ Chanel.Beauty + Tom.Ford.Beauty + Dior.Beauty + YSL.Beauty + Charlotte.Tilburry + Laura.Mercier + factor(Year)+ factor(Period), data = luxury)
+
+genols <- lm(Value ~ luxury.index + factor(Year) + factor(Period), data = luxury)
+
+summary(skinols)
+summary(cosols)
+summary(genols)
+```
+Stargazer Table
+```{r}
+stargazer(skinols, cosols, genols, type = "text", title = "Luxury Brands Data Models", column.labels = c("Skincare Brands", "Makeup Brands", "General Interest Index"), dep.var.labels = "Wage Growth 2022-2025", out = "luxury_regressions.html")
+
+stargazer(skinols,type = "text", title = "Luxury Skincare Model", column.labels = 'Skincare Brands', dep.var.labels = "Wage Growth 2022-2025")
+stargazer(cosols,type = "text", title = "Luxury Cosmetics Model", column.labels = 'Cosmetic Brands', dep.var.labels = "Wage Growth 2022-2025")
+stargazer(genols,type = "text", title = "Luxury Interest Index Model", dep.var.labels = "Wage Growth 2022-2025")
+```
+Interpretations: 
+
+My first regression shows the correlation between skincare brands and wage growth. As seen, Shiseido, Kiehls, and Lancome are shown as significant and the 1% level, with a 10 point increase in their search intensity resulting in an increase on wage growth for Shiseido and Lancome and a decrease in wage growth for Kiehls. Shiseido and Lancome are significantly more expensive compared to Kiehls, which would mean the Lipstick Effect is not at play here. 
+
+My second regression shows the correlation between makeup brands and wage growth. As seen, Laura Mercier is shown to be significant, with a single point increase in the search intensity resulting in .004% increase of wage growth. While significant statistically, the size of this number would indicate that the effect is not strong. From this regression, we are unable to confirm if the Lipstick Effect is shown here. 
+
+My third regression shows the correlation between general luxury cosmetic interest and wage growth. From this regression, we are unable to draw any significant conclusions on the correlation between interest in luxury cosmetics and wage growth over time. 
+
+In conclusion, this analysis fails to reject the null. While the lipstick effect may still be seen in other ways, for example actual sales for these cosmetic brands, the search interest for them through Google is unable to provide any indication that it may be in effect in the modern era. Improvements to this could come in the form of data on cosmetic sales or a different economic measure besides wage growth. 
